@@ -1,5 +1,10 @@
 Revision history for Perl extension Algorithm::FEC
 
+0.4   Sat Sep 13 23:59:10 CEST 2003
+	- INCOMPATIBLE CHANGE: added shuffle, changed;
+          semantics of shuffled indices. (yes, I am trying
+          to get this right :)
+
 0.03  Sat Sep 13 16:18:57 CEST 2003
 	- fix index ordering that decode returns.
 

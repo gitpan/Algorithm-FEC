@@ -28,6 +28,7 @@ typedef struct state {
   void **b_mmap;
   int *b_sz;
   SV **b_sv;
+  int *idx; /* the decoding indices */
 } *Algorithm__FEC;
 
 static void
@@ -55,6 +56,7 @@ free_files (struct state *self)
   Safefree (self->b_mmap); self->b_mmap = 0;
   Safefree (self->b_sz  ); self->b_sz   = 0;
   Safefree (self->b_sv  ); self->b_sv   = 0;
+  Safefree (self->idx   ); self->idx    = 0;
 }
 
 static void
@@ -181,7 +183,7 @@ new(class, data_packets, encoded_packets, blocksize)
         RETVAL
 
 void
-set_blocks (self, blocks)
+set_encode_blocks (self, blocks)
         Algorithm::FEC self
         SV *	blocks
 	CODE:
@@ -190,7 +192,7 @@ set_blocks (self, blocks)
 
         if (SvOK (blocks))
           {
-            chk_array (blocks, self->dp, "encode", "blocks");
+            chk_array (blocks, self->dp, "set_encode_blocks", "blocks");
             open_files (self, (AV *)SvRV (blocks), 0);
           }
 
@@ -205,13 +207,14 @@ encode (self, block_index)
                  block_index, self->ep);
 
         if (!self->b_addr)
-          croak ("no blocks specified by a preceding call to set_blocks");
+          croak ("no blocks specified by a preceding call to set_encode_blocks");
 
         force_addrs (self, self->dp);
 
         RETVAL = newSV (self->sz);
         if (!RETVAL)
           croak ("unable to allocate result block (out of memory)");
+
         SvPOK_only (RETVAL);
         SvCUR_set (RETVAL, self->sz);
 
@@ -222,29 +225,26 @@ encode (self, block_index)
         RETVAL
 
 void
-decode (self, blocks, indices)
+set_decode_blocks (self, blocks, indices)
         Algorithm::FEC self
         SV *	blocks
         SV *	indices
+        ALIAS:
+        shuffle = 1
 	CODE:
 {
         int i;
         int *idx;
 
-        chk_array (blocks,  self->dp, "decode", "blocks");
-        chk_array (indices, self->dp, "decode", "indices");
-        open_files (self, (AV *)SvRV (blocks), 1);
-
-        force_addrs (self, self->dp);
+        chk_array (blocks,  self->dp, "set_decode_blocks", "blocks");
+        chk_array (indices, self->dp, "set_decode_blocks", "indices");
 
         Newz (0, idx, self->dp, int);
 
         /* copy and check */
         for (i = 0; i < self->dp; i++)
           {
-            SV *a = *av_fetch ((AV *)SvRV (indices), i, 1);
-            idx[i] = SvIV (a);
-            sv_setiv (a, i);
+            idx[i] = SvIV (*av_fetch ((AV *)SvRV (indices), i, 1));
 
             if (idx[i] < 0 || idx[i] >= self->ep)
               {
@@ -261,32 +261,48 @@ decode (self, blocks, indices)
         for (i = 0; i < self->dp; i++)
           while (idx[i] < self->dp && idx[i] != i)
             {
-              SV **a, **b;
+              SV **a, **b, **e, **f;
               int d;
               void *p;
               SV *s;
-              int c = idx[i];
+              int j = idx[i];
 
-              if (idx[c] == c)
+              if (idx[j] == j)
                 {
                   Safefree (idx);
-                  croak ("error while shuffling, duplicate indices? (idx[i]%d i%d idx[c]%d c%d", idx[i],i,idx[c],c);
+                  croak ("error while shuffling, duplicate indices?");
                 }
 
               a = av_fetch ((AV *)SvRV (indices), i, 1);
-              b = av_fetch ((AV *)SvRV (indices), c, 1);
+              b = av_fetch ((AV *)SvRV (indices), j, 1);
+              e = av_fetch ((AV *)SvRV (blocks ), i, 1);
+              f = av_fetch ((AV *)SvRV (blocks ), j, 1);
 
-              d = idx[i];          idx[i]          = idx[c];          idx[c]          = d;
-              p = self->b_addr[i]; self->b_addr[i] = self->b_addr[c]; self->b_addr[c] = p;
-              s = *a;              *a              = *b;              *b = s;
+              d = idx[i]; idx[i] = idx[j]; idx[j] = d;
+              s = *a;     *a     = *b;     *b = s;
+              s = *e;     *e     = *f;     *f = s;
             }
 
-        self->imp->fec_decode (self->code, self->b_addr, idx, self->sz);
-
-        Safefree (idx);
-
-        free_files (self);
+        if (ix)
+          Safefree (idx);
+        else
+          {
+            open_files (self, (AV *)SvRV (blocks), 1);
+            self->idx = idx;
+          }
 }
+
+void
+decode (self)
+        Algorithm::FEC self
+	CODE:
+
+        if (!self->idx)
+          croak ("index array must be set by a prior call to set_decode_blocks");
+
+        force_addrs (self, self->dp);
+        self->imp->fec_decode (self->code, self->b_addr, self->idx, self->sz);
+        free_files (self);
 
 void
 copy (self, srcblock, dstblock)

@@ -11,17 +11,17 @@ Algorithm::FEC - Forward Error Correction using Vandermonde Matrices
 This module is an interface to the fec library by Luigi Rizzo et al., see
 the file README.fec in the distribution for more details.
 
-This library implements a simple (C<encoded_packets>,C<data_packets>)
+This library implements a simple (C<encoded_blocks>,C<data_blocks>)
 erasure code based on Vandermonde matrices.  The encoder takes
-C<data_packets> packets of size C<block_size> each, and is able to produce
-up to C<encoded_packets> different encoded packets, numbered from C<0>
-to C<encoded_packets-1>, such that any subset of C<data_packets> members
+C<data_blocks> blocks of size C<block_size> each, and is able to produce
+up to C<encoded_blocks> different encoded blocks, numbered from C<0>
+to C<encoded_blocks-1>, such that any subset of C<data_blocks> members
 permits reconstruction of the original data.
 
-Allowed values for C<data_packets> and C<encoded_packets> must obey the
+Allowed values for C<data_blocks> and C<encoded_blocks> must obey the
 following equation:
 
-   data_packets <= encoded_packets <= MAXBLOCKS
+   data_blocks <= encoded_blocks <= MAXBLOCKS
 
 Where C<MAXBLOCKS=256> for the fast implementation and C<MAXBLOCKS=65536>
 for the slow implementation (the implementation is chosen automatically).
@@ -36,13 +36,13 @@ require XSLoader;
 
 no warnings;
 
-$VERSION = 0.03;
+$VERSION = 0.4;
 
 XSLoader::load Algorithm::FEC, $VERSION;
 
-=item $fec = new data_packets, encoded_packets, blocksize
+=item $fec = new data_blocks, encoded_blocks, blocksize
 
-=item $fec->set_blocks ([array_of_blocks])
+=item $fec->set_encode_blocks ([array_of_blocks])
 
 Sets the data blocks used for the encoding. Each member of the array can either be:
 
@@ -73,53 +73,79 @@ blocks is freed again.
 
 =item $block = $fec->encode (block_index)
 
-Creates a single encoded packet of index C<block_index>, which must be
-between C<0> and C<encoded_packets-1> (inclusive). The blocks from C<0> to
-C<data_packets-1> are simply copies of the original data blocks.
+Creates a single encoded block of index C<block_index>, which must be
+between C<0> and C<encoded_blocks-1> (inclusive). The blocks from C<0> to
+C<data_blocks-1> are simply copies of the original data blocks.
 
 The encoded block is returned as a perl scalar (so the blocks should fit
 into memory. If this is a problem for you mail me and I'll make it a file.
 
-=item $fec->decode ([array_of_blocks], [array_of_indices])
+=item $fec->set_decode_blocks ([array_of_blocks], [array_of_indices])
 
-Decode C<data_packets> of blocks (see C<set_blocks> for the
-C<array_of_blocks> parameter).
+Prepares to decode C<data_blocks> of blocks (see C<set_encode_blocks> for
+the C<array_of_blocks> parameter).
 
 Since these are not necessarily the original data blocks, an array of
-indices (ranging from C<0> to C<encoded_packets-1>) must be supplied as
+indices (ranging from C<0> to C<encoded_blocks-1>) must be supplied as
 the second arrayref.
 
-Both arrays must have exactly C<data_packets> entries.
+Both arrays must have exactly C<data_blocks> entries.
 
-After decoding, the blocks will be modified in place (if necessary), and
-the array of indices will be updates to reflect the changes: The n-th
-entry in the indices array is the index of the n-th data block of the
-file.
+This method also reorders the blocks and index array in place (if
+necessary) to reflect the order the blocks will have in the decoded
+result.
+
+Both arrays must have exactly C<data_blocks> entries.
+
+The index array represents the decoded ordering, in that the n-th entry
+in the indices array corresponds to the n-th data block of the decoded
+result. The value stored in the n-th place in the array will contain the
+index of the encoded data block.
+
+Input blocks with indices less than C<data_blocks> will be moved to their
+final position (block k to position k), while the gaps between them will
+be filled with check blocks. The decoding process will not modify the
+already decoded data blocks, but will modify the check blocks.
 
 That is, if you call this function with C<indices = [4,3,1]>, with
-C<data_packets = 3>, then this array will be returned: C<[0,2,1]>. This
+C<data_blocks = 3>, then this array will be returned: C<[0,2,1]>. This
 means that input block C<0> corresponds to file block C<0>, input block
 C<1> to file block C<2> and input block C<2> to data block C<1>.
 
 You can just iterate over this array and write out the corresponding data
 block (although this is inefficient):
 
-   for my $i (0 .. $#idx) {
-      copy $decode_input_block[$idx[$i]], $file_output_block[$i];
+   for my $i (0 .. $#idx)
+      if ($idx[$i] != $i) # need we move this block?
+         copy encoded block $idx[$i] to position $i
+      }
    }
 
-Only input blocks with indices >= C<data_packets> will be modified, blocks
-that already contain the original data will just be reordered.
+The C<copy> method can be helpful here.
 
-This method destroys the block array as set up by C<set_blocks>.
+This method destroys the block array as set up by C<set_encode_blocks>.
+
+=item $fec->shuffle ([array_of_blocks], [array_of_indices])
+
+The same same as C<set_decode_blocks>, with the exception that the blocks
+are not actually set for decoding.
+
+This method is not normally used, but if you want to move blocks
+around after reodering and before decoding, then calling Cshuffle>
+followed by C<set_decode_blocks> incurs lower overhead than calling
+C<set_decode_blocks> twice, as files are not mmapped etc.
+
+=item $fec->decode
+
+Decode the blocks set by a prior call to C<set_decode_blocks>.
+
+This method destroys the block array as set up by C<set_decode_blocks>.
 
 =item $fec->copy ($srcblock, $dstblock)
 
 Utility function that simply copies one block (specified like in
-C<set_blocks>) into another. This, btw., destroys the blocks set by
-C<set_blocks>.
-
-If you don't understand why this helps, feel free to ignore it :)
+C<set_encode_blocks>) into another. This, btw., destroys the blocks set by
+C<set_*_blocks>.
 
 =item COMPATIBILITY
 
@@ -135,6 +161,7 @@ used (except for freenet ;)
 
 =head1 BUGS
 
+ * too complicated.
  * largely untested, please change this.
  * file descriptors are not supported, but should be.
  * utility functions for files should be provided.

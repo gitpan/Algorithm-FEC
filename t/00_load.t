@@ -22,7 +22,7 @@ my @files = map {
 
 ok 1;
 
-$fec->set_blocks (\@files);
+$fec->set_encode_blocks (\@files);
 
 ok 1;
 
@@ -41,9 +41,9 @@ ok ($blk[3] eq "%" x 70);
 ok ($blk[4] eq "Y" x 70);
 
 for ([[0,1,2],[0,1,2]],
-     [[0,2,1],[0,2,1]],
-     [[0,2,3],[0,2,1]],
-     [[4,3,1],[0,2,1]]) {
+     [[0,2,1],[0,1,2]],
+     [[0,2,3],[0,3,2]],
+     [[4,3,1],[4,1,3]]) {
    my ($idx1, $idx2) = @$_;
 
    my @blks;
@@ -54,17 +54,16 @@ for ([[0,1,2],[0,1,2]],
      $blks[$i++] = $_ < 3 ? $files[$_] : $blk[$_];
    }
 
-   $fec->decode (\@blks, $idx1);
+   $fec->set_decode_blocks (\@blks, $idx1);
+   $fec->decode;
 
    ok 1;
 
    ok ("@$idx1" eq "@$idx2");
 
-   $i = 0;
-   for (@$idx1) {
-      $i++;
+   for (0 .. $#$idx1) {
       next if ref $blks[$_];
-      ok ($i x 70 eq $blks[$_]);
+      ok (($_+1) x 70 eq $blks[$_]);
    }
 }
 
