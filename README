@@ -75,11 +75,15 @@ DESCRIPTION
 
         That is, if you call this function with "indices = [4,3,1]", with
         "data_packets = 3", then this array will be returned: "[0,2,1]".
-        This means that input block 0 corresponds file block 0, input block
-        1 to file block 2 and input block 2 to data block 1.
+        This means that input block 0 corresponds to file block 0, input
+        block 1 to file block 2 and input block 2 to data block 1.
 
         You can just iterate over this array and write out the corresponding
-        data block (although this is inefficient).
+        data block (although this is inefficient):
+
+           for my $i (0 .. $#idx) {
+              copy $decode_input_block[$idx[$i]], $file_output_block[$i];
+           }
 
         Only input blocks with indices >= "data_packets" will be modified,
         blocks that already contain the original data will just be

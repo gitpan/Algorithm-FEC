@@ -259,18 +259,18 @@ decode (self, blocks, indices)
          * so we know the order.
          */
         for (i = 0; i < self->dp; i++)
-          if (idx[i] < self->dp && idx[i] != i)
+          while (idx[i] < self->dp && idx[i] != i)
             {
-              int c = idx[i];
               SV **a, **b;
               int d;
               void *p;
               SV *s;
+              int c = idx[i];
 
               if (idx[c] == c)
                 {
                   Safefree (idx);
-                  croak ("error while shuffling, duplicate indices?");
+                  croak ("error while shuffling, duplicate indices? (idx[i]%d i%d idx[c]%d c%d", idx[i],i,idx[c],c);
                 }
 
               a = av_fetch ((AV *)SvRV (indices), i, 1);

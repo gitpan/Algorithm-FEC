@@ -36,7 +36,7 @@ require XSLoader;
 
 no warnings;
 
-$VERSION = 0.02;
+$VERSION = 0.03;
 
 XSLoader::load Algorithm::FEC, $VERSION;
 
@@ -98,11 +98,15 @@ file.
 
 That is, if you call this function with C<indices = [4,3,1]>, with
 C<data_packets = 3>, then this array will be returned: C<[0,2,1]>. This
-means that input block C<0> corresponds file block C<0>, input block C<1>
-to file block C<2> and input block C<2> to data block C<1>.
+means that input block C<0> corresponds to file block C<0>, input block
+C<1> to file block C<2> and input block C<2> to data block C<1>.
 
 You can just iterate over this array and write out the corresponding data
-block (although this is inefficient).
+block (although this is inefficient):
+
+   for my $i (0 .. $#idx) {
+      copy $decode_input_block[$idx[$i]], $file_output_block[$i];
+   }
 
 Only input blocks with indices >= C<data_packets> will be modified, blocks
 that already contain the original data will just be reordered.

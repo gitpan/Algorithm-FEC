@@ -1,5 +1,8 @@
 Revision history for Perl extension Algorithm::FEC
 
+0.03  Sat Sep 13 16:18:57 CEST 2003
+	- fix index ordering that decode returns.
+
 0.02  Wed Sep 10 01:11:03 CEST 2003
 	- removed funny "magic" that uses undefined u_long,
           spotted by Autrijus Tang.
