@@ -44,7 +44,12 @@ DESCRIPTION
 
         If your data is not of the required size (i.e. a multiple of
         "blocksize" bytes), then you must pad it (e.g. with zero bytes) on
-        encoding, and truncate it after decoding.
+        encoding (and you should truncate it after decoding). Otherwise,
+        this library croaks.
+
+        Future versions might instead load the short segment into memory or
+        extend your scalar (this might enable nice tricks, like "$fec-"copy
+        (..., my $x)> :). Mail me if you want this to happen.
 
         If called without arguments, the internal storage associated with
         the blocks is freed again.
@@ -124,25 +129,25 @@ DESCRIPTION
         "set_encode_blocks") into another. This, btw., destroys the blocks
         set by "set_*_blocks".
 
-    COMPATIBILITY
-        The way this module works is compatible with the way freenet
-        (<http://freenet.sf.net>) encodes files. Comaptibility to other file
-        formats or networks is not know, please tell me if you find more
-        examples.
+COMPATIBILITY
+    The way this module works is compatible with the way freenet
+    (<http://freenet.sf.net>) encodes files. Comaptibility to other file
+    formats or networks is not know, please tell me if you find more
+    examples.
 
 SEE ALSO
-        Net::FCP. And the author, who might be happy to receive mail from
-        any user, just to see that this rather rarely-used module is
-        actually being used (except for freenet ;)
+    Net::FCP. And the author, who might be happy to receive mail from any
+    user, just to see that this rather rarely-used module is actually being
+    used (except for freenet ;)
 
 BUGS
-         * too complicated.
-         * largely untested, please change this.
-         * file descriptors are not supported, but should be.
-         * utility functions for files should be provided.
-         * 16 bit version not tested
+     * too complicated.
+     * largely untested, please change this.
+     * file descriptors are not supported, but should be.
+     * utility functions for files should be provided.
+     * 16 bit version not tested
 
 AUTHOR
-         Marc Lehmann <pcg@goof.com>
-         http://home.schmorp.de
+     Marc Lehmann <pcg@goof.com>
+     http://home.schmorp.de
 

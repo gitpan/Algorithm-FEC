@@ -36,7 +36,7 @@ require XSLoader;
 
 no warnings;
 
-$VERSION = 0.4;
+$VERSION = 0.5;
 
 XSLoader::load Algorithm::FEC, $VERSION;
 
@@ -65,8 +65,12 @@ file.
 =back
 
 If your data is not of the required size (i.e. a multiple of C<blocksize>
-bytes), then you must pad it (e.g. with zero bytes) on encoding, and
-truncate it after decoding.
+bytes), then you must pad it (e.g. with zero bytes) on encoding (and you
+should truncate it after decoding). Otherwise, this library croaks.
+
+Future versions might instead load the short segment into memory or extend
+your scalar (this might enable nice tricks, like C<$fec->copy (..., my
+$x)> :). Mail me if you want this to happen.
 
 If called without arguments, the internal storage associated with the
 blocks is freed again.
@@ -147,7 +151,9 @@ Utility function that simply copies one block (specified like in
 C<set_encode_blocks>) into another. This, btw., destroys the blocks set by
 C<set_*_blocks>.
 
-=item COMPATIBILITY
+=back
+
+=head1 COMPATIBILITY
 
 The way this module works is compatible with the way freenet
 (L<http://freenet.sf.net>) encodes files. Comaptibility to other file

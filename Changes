@@ -1,5 +1,10 @@
 Revision history for Perl extension Algorithm::FEC
 
+0.5   Mon Jun 21 15:06:15 CEST 2004
+	- check filesize and croak if mmap extends. also laid
+          the foundation for auto-extending short segments.
+        - small doc corrections by Jochen Stenzel.
+
 0.4   Sat Sep 13 23:59:10 CEST 2003
 	- INCOMPATIBLE CHANGE: added shuffle, changed;
           semantics of shuffled indices. (yes, I am trying
