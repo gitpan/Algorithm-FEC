@@ -630,10 +630,7 @@ static void init_fec()
  * and then transforming it into a systematic matrix.
  */
 
-#define FEC_MAGIC	0xFECC0DEC
-
 struct fec_parms {
-    u_long magic ;
     int k, n ;		/* parameters of the code */
     gf *enc_matrix ;
 } ;
@@ -641,8 +638,7 @@ struct fec_parms {
 void
 fec_free(struct fec_parms *p)
 {
-    if (p==NULL ||
-       p->magic != ( ( (FEC_MAGIC ^ p->k) ^ p->n) ^ (int)(p->enc_matrix)) ) {
+    if (p==NULL) {
 	fprintf(stderr, "bad parameters to fec_free\n");
 	return ;
     }
@@ -674,7 +670,6 @@ fec_new(int k, int n)
     retval->k = k ;
     retval->n = n ;
     retval->enc_matrix = NEW_GF_MATRIX(n, k);
-    retval->magic = ( ( FEC_MAGIC ^ k) ^ n) ^ (int)(retval->enc_matrix) ;
     tmp_m = NEW_GF_MATRIX(n, k);
     /*
      * fill the matrix with powers of field elements, starting from 0.

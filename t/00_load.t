@@ -75,6 +75,6 @@ my $b = "b" x 70;
 
 $fec->copy ($b, $a);
 
-ok $a eq $b;
-ok $a eq "b" x 70;
+ok ($a eq $b);
+ok ($a eq "b" x 70);
 

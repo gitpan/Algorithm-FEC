@@ -1,5 +1,9 @@
 Revision history for Perl extension Algorithm::FEC
 
+0.02  Wed Sep 10 01:11:03 CEST 2003
+	- removed funny "magic" that uses undefined u_long,
+          spotted by Autrijus Tang.
+
 0.01  Mon Sep  8 22:11:12 CEST 2003
 	- original version; cloned from Digest::Hashcash
 

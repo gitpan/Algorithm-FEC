@@ -36,7 +36,7 @@ require XSLoader;
 
 no warnings;
 
-$VERSION = 0.01;
+$VERSION = 0.02;
 
 XSLoader::load Algorithm::FEC, $VERSION;
 
