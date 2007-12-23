@@ -24,7 +24,9 @@ DESCRIPTION
     for the slow implementation (the implementation is chosen
     automatically).
 
-    $fec = new data_blocks, encoded_blocks, blocksize
+    $fec = new Algorithm::FEC $data_blocks, $encoded_blocks, $blocksize
+        Creates a new Algorithm::FEC object with the given parameters.
+
     $fec->set_encode_blocks ([array_of_blocks])
         Sets the data blocks used for the encoding. Each member of the array
         can either be:
@@ -54,7 +56,7 @@ DESCRIPTION
         If called without arguments, the internal storage associated with
         the blocks is freed again.
 
-    $block = $fec->encode (block_index)
+    $block = $fec->encode ($block_index)
         Creates a single encoded block of index "block_index", which must be
         between 0 and "encoded_blocks-1" (inclusive). The blocks from 0 to
         "data_blocks-1" are simply copies of the original data blocks.
@@ -67,17 +69,15 @@ DESCRIPTION
         Prepares to decode "data_blocks" of blocks (see "set_encode_blocks"
         for the "array_of_blocks" parameter).
 
-        Since these are not necessarily the original data blocks, an array
-        of indices (ranging from 0 to "encoded_blocks-1") must be supplied
-        as the second arrayref.
+        Since these are not usually the original data blocks, an array of
+        indices (ranging from 0 to "encoded_blocks-1") must be supplied as
+        the second arrayref.
 
         Both arrays must have exactly "data_blocks" entries.
 
         This method also reorders the blocks and index array in place (if
         necessary) to reflect the order the blocks will have in the decoded
         result.
-
-        Both arrays must have exactly "data_blocks" entries.
 
         The index array represents the decoded ordering, in that the n-th
         entry in the indices array corresponds to the n-th data block of the
@@ -114,7 +114,7 @@ DESCRIPTION
         blocks are not actually set for decoding.
 
         This method is not normally used, but if you want to move blocks
-        around after reodering and before decoding, then calling Cshuffle>
+        around after reordering and before decoding, then calling "shuffle"
         followed by "set_decode_blocks" incurs lower overhead than calling
         "set_decode_blocks" twice, as files are not mmapped etc.
 
@@ -132,7 +132,7 @@ DESCRIPTION
 COMPATIBILITY
     The way this module works is compatible with the way freenet
     (<http://freenet.sf.net>) encodes files. Comaptibility to other file
-    formats or networks is not know, please tell me if you find more
+    formats or networks is not known, please tell me if you find more
     examples.
 
 SEE ALSO
@@ -148,6 +148,6 @@ BUGS
      * 16 bit version not tested
 
 AUTHOR
-     Marc Lehmann <pcg@goof.com>
+     Marc Lehmann <schmorp@schmorp.de>
      http://home.schmorp.de
 

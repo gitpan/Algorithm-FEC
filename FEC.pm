@@ -36,11 +36,13 @@ require XSLoader;
 
 no warnings;
 
-$VERSION = 0.5;
+$VERSION = '1.0';
 
 XSLoader::load Algorithm::FEC, $VERSION;
 
-=item $fec = new data_blocks, encoded_blocks, blocksize
+=item $fec = new Algorithm::FEC $data_blocks, $encoded_blocks, $blocksize
+
+Creates a new Algorithm::FEC object with the given parameters.
 
 =item $fec->set_encode_blocks ([array_of_blocks])
 
@@ -75,7 +77,7 @@ $x)> :). Mail me if you want this to happen.
 If called without arguments, the internal storage associated with the
 blocks is freed again.
 
-=item $block = $fec->encode (block_index)
+=item $block = $fec->encode ($block_index)
 
 Creates a single encoded block of index C<block_index>, which must be
 between C<0> and C<encoded_blocks-1> (inclusive). The blocks from C<0> to
@@ -89,7 +91,7 @@ into memory. If this is a problem for you mail me and I'll make it a file.
 Prepares to decode C<data_blocks> of blocks (see C<set_encode_blocks> for
 the C<array_of_blocks> parameter).
 
-Since these are not necessarily the original data blocks, an array of
+Since these are not usually the original data blocks, an array of
 indices (ranging from C<0> to C<encoded_blocks-1>) must be supplied as
 the second arrayref.
 
@@ -98,8 +100,6 @@ Both arrays must have exactly C<data_blocks> entries.
 This method also reorders the blocks and index array in place (if
 necessary) to reflect the order the blocks will have in the decoded
 result.
-
-Both arrays must have exactly C<data_blocks> entries.
 
 The index array represents the decoded ordering, in that the n-th entry
 in the indices array corresponds to the n-th data block of the decoded
@@ -135,7 +135,7 @@ The same same as C<set_decode_blocks>, with the exception that the blocks
 are not actually set for decoding.
 
 This method is not normally used, but if you want to move blocks
-around after reodering and before decoding, then calling Cshuffle>
+around after reordering and before decoding, then calling C<shuffle>
 followed by C<set_decode_blocks> incurs lower overhead than calling
 C<set_decode_blocks> twice, as files are not mmapped etc.
 
@@ -157,7 +157,7 @@ C<set_*_blocks>.
 
 The way this module works is compatible with the way freenet
 (L<http://freenet.sf.net>) encodes files. Comaptibility to other file
-formats or networks is not know, please tell me if you find more examples.
+formats or networks is not known, please tell me if you find more examples.
 
 =head1 SEE ALSO
 
@@ -175,7 +175,7 @@ used (except for freenet ;)
 
 =head1 AUTHOR
 
- Marc Lehmann <pcg@goof.com>
+ Marc Lehmann <schmorp@schmorp.de>
  http://home.schmorp.de
 
 =cut

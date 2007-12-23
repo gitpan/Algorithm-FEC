@@ -1,5 +1,9 @@
 Revision history for Perl extension Algorithm::FEC
 
+1.0   Sun Dec 23 16:43:02 CET 2007
+	- more small doc fixes.
+        - fix a crash occuring while generating an error message.
+
 0.5   Mon Jun 21 15:06:15 CEST 2004
 	- check filesize and croak if mmap extends. also laid
           the foundation for auto-extending short segments.

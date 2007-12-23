@@ -37,7 +37,7 @@ chk_array (SV *sv, int size, const char *func, const char *var)
   if (!SvROK (sv)
       || SvTYPE (SvRV (sv)) != SVt_PVAV
       || av_len ((AV *)SvRV (sv)) != size - 1)
-    croak ("%s: %s must be a reference to an array of size %d", size);
+    croak ("%s: %s (%s) must be a reference to an array of size %d", func, SvPV_nolen (sv), var, size);
 }
 
 static void
