@@ -51,7 +51,11 @@ for ([[0,1,2],[0,1,2]],
    ok 1;
    my $i;
    for (@$idx1) {
-     $blks[$i++] = $_ < 3 ? $files[$_] : $blk[$_];
+     $blks[$i++] = $_ < 3 ? $files[$_] : do {
+        # Create a shared hash key scalar as an extra robustness test.
+        $blk[$_] = (keys %{{$blk[$_]=>0}})[0];
+        $blk[$_];
+     };
    }
 
    $fec->set_decode_blocks (\@blks, $idx1);

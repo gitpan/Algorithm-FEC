@@ -79,7 +79,7 @@ force_addrs (struct state *self, int dp)
     if (self->b_sv[i])
       {
         STRLEN size;
-        self->b_addr[i] = SvPV (self->b_sv[i], size);
+        self->b_addr[i] = SvPV_force (self->b_sv[i], size);
 
         if (size != self->sz)
           croak ("block #%d (a string) has size %d, not %d", i, (int)size, self->sz);

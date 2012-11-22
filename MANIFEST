@@ -13,4 +13,5 @@ fec8.c
 fec16.c
 typemap
 t/00_load.t
-META.yml                                Module meta-data in YAML
+META.yml                                 Module YAML meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)

@@ -31,15 +31,18 @@ DESCRIPTION
         Sets the data blocks used for the encoding. Each member of the array
         can either be:
 
-        * a string of size "blocksize" "exactly".
+        *   a string of size "blocksize" "exactly".
+
             This is useful for small files (encoding entirely in memory).
 
-        * a filehandle of a file of size "blocksize" "exactly".
+        *   a filehandle of a file of size "blocksize" "exactly".
+
             This is useful when the amount of data is large and resides in
             single files.
 
-        * a reference to an array containing a filehandle and, optionally,
-        an offset into that file.
+        *   a reference to an array containing a filehandle and, optionally,
+            an offset into that file.
+
             This is useful if the amount of data is large and resides in a
             single file. Needless to say, all parts must not overlap and
             must fit into the file.
